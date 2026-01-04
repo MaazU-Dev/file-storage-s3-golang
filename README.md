@@ -1,6 +1,6 @@
 # learn-file-storage-s3-golang-starter (Tubely)
 
-This repo contains the starter code for the Tubely application - the #1 tool for engagement bait - for the "Learn File Servers and CDNs with S3 and CloudFront"
+This repo contains the starter code for the Tubely application - the #1 tool for engagement bait - include "File Servers and CDNs with S3 and CloudFront"
 
 ## Quickstart
 
