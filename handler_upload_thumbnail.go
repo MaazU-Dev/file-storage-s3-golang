@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -61,6 +62,16 @@ func (cfg *apiConfig) handlerUploadThumbnail(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	parseMediaType, _, err := mime.ParseMediaType(mediaType)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Unable to parse media type", err)
+		return
+	}
+
+	if parseMediaType != "image/png" && parseMediaType != "image/jpeg" {
+		respondWithError(w, http.StatusInternalServerError, "Wrong media type", err)
+		return
+	}
 	fileExtension := strings.Split(mediaType, "/")[1]
 	videoFileName := fmt.Sprintf("%s.%s", videoID, fileExtension)
 	filePath := filepath.Join(cfg.assetsRoot, videoFileName)
