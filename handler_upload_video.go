@@ -9,6 +9,7 @@ import (
 	"mime"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -90,6 +91,8 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 	key := make([]byte, 32)
 	rand.Read(key)
 	fileName := base64.RawURLEncoding.EncodeToString(key)
+	fileExtension := strings.Split(mediaType, "/")[1]
+	fileName = fmt.Sprintf("%s.%s", fileName, fileExtension)
 
 	ctx := context.TODO()
 	_, err = cfg.s3Client.PutObject(ctx, &s3.PutObjectInput{
