@@ -89,9 +89,27 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 	file.Seek(0, io.SeekStart)
 
 	aspectRatio, err := getVideoAspectRatio(file.Name())
-
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Unable to get aspect ratio", err)
+		return
+	}
+	processedFilePath, err := processVideoForFastStart(file.Name())
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "File path not processed", err)
+		return
+	}
+	defer os.Remove(processedFilePath)
+
+	processedFile, err := os.Open(processedFilePath)
+
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Unable to open processed file", err)
+		return
+	}
+	defer processedFile.Close()
+
+	if err = os.Remove(file.Name()); err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Unable to delete existing file", err)
 		return
 	}
 
@@ -115,7 +133,7 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 	_, err = cfg.s3Client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:      aws.String(cfg.s3Bucket),
 		Key:         aws.String(fileName),
-		Body:        file,
+		Body:        processedFile,
 		ContentType: aws.String(mediaType),
 	})
 	if err != nil {
