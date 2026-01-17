@@ -7,6 +7,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
+	"time"
+
+	"github.com/bootdotdev/learn-file-storage-s3-golang-starter/internal/database"
 )
 
 func (cfg apiConfig) ensureAssetsDir() error {
@@ -61,4 +65,28 @@ func processVideoForFastStart(filePath string) (string, error) {
 	}
 
 	return outputFilePath, nil
+}
+
+func (cfg *apiConfig) dbVideoToSignedVideo(video database.Video) (database.Video, error) {
+	if video.VideoURL == nil {
+		return video, nil
+	}
+	fmt.Println("+_+_+_+_+_+_+_+_+_+_+")
+
+	vals := strings.Split(*video.VideoURL, ",")
+
+	if len(vals) < 2 {
+		return video, nil
+	}
+	fmt.Println(vals)
+	expirationTime := time.Minute * 15
+	newUrl, err := generatePresignedURL(cfg.s3Client, vals[0], vals[1], expirationTime)
+	fmt.Println(newUrl)
+	fmt.Println("+_+_+_+_+_+_+_+_+_+_+")
+
+	if err != nil {
+		return video, errors.New("unable to generate new url")
+	}
+	video.VideoURL = &newUrl
+	return video, nil
 }
