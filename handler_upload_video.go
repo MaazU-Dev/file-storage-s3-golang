@@ -143,7 +143,13 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	// videoUrl := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", cfg.s3Bucket, cfg.s3Region, fileName)
-	videoUrl := fmt.Sprintf("%s,%s", cfg.s3Bucket, fileName)
+	// videoUrl := fmt.Sprintf("%s,%s", cfg.s3Bucket, fileName)
+	videoUrl := fmt.Sprintf("%s/%s", cfg.s3CfDistribution, fileName)
+	fmt.Println("_+_+_+_+_+_+_+_+_+_+")
+	fmt.Println("cfg.s3CfDistribution", cfg.s3CfDistribution)
+	fmt.Println("videoUrl", videoUrl)
+	fmt.Println("_+_+_+_+_+_+_+_+_+_+")
+
 	metaData.VideoURL = &videoUrl
 
 	err = cfg.db.UpdateVideo(metaData)
@@ -152,12 +158,12 @@ func (cfg *apiConfig) handlerUploadVideo(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	metaData, err = cfg.dbVideoToSignedVideo(metaData)
+	// metaData, err = cfg.dbVideoToSignedVideo(metaData)
 
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Unable to get Presigned URL", err)
-		return
-	}
+	// if err != nil {
+	// 	respondWithError(w, http.StatusInternalServerError, "Unable to get Presigned URL", err)
+	// 	return
+	// }
 
 	respondWithJSON(w, http.StatusOK, metaData)
 }

@@ -84,7 +84,6 @@ func main() {
 	if port == "" {
 		log.Fatal("PORT environment variable is not set")
 	}
-
 	ctx := context.TODO()
 	config, err := config.LoadDefaultConfig(ctx, config.WithRegion(s3Region))
 	if err != nil {
